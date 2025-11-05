@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RavageMC - PvP Гриферский сервер</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Основные стили */
+        :root {
+            --primary-color: #0066ff;
+            --secondary-color: #0044cc;
+            --dark-bg: #121212;
+            --darker-bg: #0a0a0a;
+            --text-color: #f0f0f0;
+            --accent-color: #00a8ff;
+            --price-color: #00ff88;
+            --success-color: #00cc66;
+            --warning-color: #ffaa00;
+            --error-color: #ff4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Анимированный фон */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bg-element {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 102, 255, 0.1) 0%, transparent 70%);
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0.5;
+            }
+        }
+        
+        /* Светящиеся элементы */
+        .glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px rgba(0, 102, 255, 0.5), 0 0 10px rgba(0, 102, 255, 0.3);
+            }
+            to {
+                box-shadow: 0 0 15px rgba(0, 102, 255, 0.8), 0 0 20px rgba(0, 102, 255, 0.5);
+            }
+        }
+        
+        /* Анимации появления */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.6s ease-out;
+        }
+        
+        .slide-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.6s ease-out;
+        }
+        
+        .slide-in-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .scale-in {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.5s ease-out;
+        }
+        
+        .scale-in.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* Плавные переходы для всех интерактивных элементов */
+        a, button, .feature-card, .privilege-card, .user-avatar, .auth-btn, .cta-button, .buy-button, .modal-content {
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* Шапка сайта */
+        header {
+            background-color: rgba(10, 10, 10, 0.95);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 2px solid var(--primary-color);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-left: 10px;
+            text-shadow: 0 0 10px rgba(0, 102, 255, 0.5);
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 102, 255, 0.5);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+        
+        nav ul li {
+            margin-left: 25px;
+        }
+        
+        nav ul li a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+        
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .auth-btn {
+            padding: 8px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid var(--primary-color);
+        }
+        
+        .login-btn {
+            background-color: transparent;
+            color: var(--primary-color);
+        }
+        
+        .login-btn:hover {
+            background-color: rgba(0, 102, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .register-btn {
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            color: white;
+        }
+        
+        .register-btn:hover {
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.4);
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            display: none;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid var(--accent-color);
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(0, 168, 255, 0.5);
+        }
+        
+        .username {
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        
+        .logout-btn-header {
+            background: transparent;
+            border: 1px solid var(--warning-color);
+            color: var(--warning-color);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn-header:hover {
+            background-color: rgba(255, 170, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        /* Главный баннер */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, rgba(0, 102, 255, 0.2), transparent 70%);
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero h2 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.6);
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+        }
+        
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        
+        /* Секции */
+        section {
+            padding: 80px 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            display: inline-block;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* Особенности сервера */
+        .features {
+            background-color: var(--darker-bg);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(145deg, rgba(0, 102, 255, 0.1), rgba(0, 168, 255, 0.05));
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(0, 102, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 102, 255, 0.2);
+            border-color: var(--primary-color);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        /* Привилегии */
+        .privileges {
+            background-color: var(--darker-bg);
+        }
+        
+        .privileges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        
+        .privilege-card {
+            background: linear-gradient(145deg, rgba(0, 102, 255, 0.1), rgba(0, 168, 255, 0.05));
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(0, 102, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .privilege-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+        
+        .privilege-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 102, 255, 0.2);
+            border-color: var(--accent-color);
+        }
+        
+        .privilege-name {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .privilege-price {
+            font-size: 2rem;
+            color: var(--price-color);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .privilege-features {
+            list-style: none;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        .privilege-features li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .privilege-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        
+        .buy-button {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .buy-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.4);
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+        }
+        
+        /* Правила и как играть */
+        .rules-and-guide {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        
+        .rules-list, .guide-steps {
+            background: linear-gradient(145deg, rgba(0, 102, 255, 0.1), rgba(0, 168, 255, 0.05));
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 102, 255, 0.2);
+        }
+        
+        .rules-list h3, .guide-steps h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .rule-item, .guide-step {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            border-left: 3px solid var(--primary-color);
+            transition: all 0.3s;
+        }
+        
+        .rule-item:hover, .guide-step:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .rule-item h4, .guide-step h4 {
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+        
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, var(--darker-bg), #151515);
+            padding: 40px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(0, 102, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .close-modal:hover {
+            color: var(--primary-color);
+            transform: scale(1.1);
+        }
+        
+        .modal h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.4);
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .form-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Профиль пользователя */
+        .profile-modal {
+            max-width: 800px;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            position: relative;
+            cursor: pointer;
+            border: 3px solid var(--accent-color);
+        }
+        
+        .change-avatar-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: var(--dark-bg);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--accent-color);
+            cursor: pointer;
+        }
+        
+        .change-avatar-btn:hover {
+            transform: scale(1.1);
+            background-color: var(--darker-bg);
+        }
+        
+        .profile-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+        
+        .profile-info p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            border-left: 3px solid var(--primary-color);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .profile-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .profile-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .profile-tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .profile-tab:hover {
+            color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .transactions-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 3px solid var(--primary-color);
+            transition: all 0.3s;
+        }
+        
+        .transaction-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .transaction-info h4 {
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+        
+        .transaction-amount {
+            font-weight: bold;
+            color: var(--price-color);
+        }
+        
+        .transaction-status {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-completed {
+            background-color: rgba(0, 204, 102, 0.2);
+            color: var(--success-color);
+        }
+        
+        .status-pending {
+            background-color: rgba(255, 170, 0, 0.2);
+            color: var(--warning-color);
+        }
+        
+        .status-failed {
+            background-color: rgba(255, 68, 68, 0.2);
+            color: var(--error-color);
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            background-color: transparent;
+            border: 2px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255, 170, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .save-btn {
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            color: white;
+        }
+        
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.4);
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+        }
+        
+        /* Аватарки для выбора */
+        .avatar-selection {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .avatar-option {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .avatar-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .avatar-option.selected {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(0, 168, 255, 0.5);
+            transform: scale(1.1);
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+            
+            nav ul {
+                margin-top: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 5px 10px;
+            }
+            
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .rules-and-guide {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-menu {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Анимированный фон -->
+    <div class="animated-bg" id="animatedBg"></div>
+    
+    <!-- Шапка сайта -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">R</div>
+                    <h1>RavageMC</h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#home">Главная</a></li>
+                        <li><a href="#features">Особенности</a></li>
+                        <li><a href="#privileges">Привилегии</a></li>
+                        <li><a href="#rules">Правила</a></li>
+                        <li><a href="#join">Как играть</a></li>
+                    </ul>
+                </nav>
+                <div class="auth-buttons" id="authButtons">
+                    <a href="#" class="auth-btn login-btn" id="loginBtn">Войти</a>
+                    <a href="#" class="auth-btn register-btn" id="registerBtn">Регистрация</a>
+                </div>
+                <div class="user-menu" id="userMenu">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span class="username" id="username">User123</span>
+                    <button class="logout-btn-header" id="logoutBtnHeader">Выйти</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Главный баннер -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h2 class="fade-in">RavageMC - PvP Гриферский сервер</h2>
+                <p class="fade-in">Присоединяйся к самому жестокому PvP гриферскому серверу в Minecraft. Грабь, разрушай и доминируй над врагами!</p>
+                <a href="#join" class="cta-button glow fade-in">Играть сейчас</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Особенности сервера -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2 class="fade-in">Особенности сервера</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card glow fade-in">
+                    <div class="feature-icon">⚔️</div>
+                    <h3>Жесткое PvP</h3>
+                    <p>Сражайся с другими игроками без ограничений. Любая тактика разрешена!</p>
+                </div>
+                <div class="feature-card glow fade-in">
+                    <div class="feature-icon">🏚️</div>
+                    <h3>Полный гриферский геймплей</h3>
+                    <p>Взламывай, грабь и разрушай базы других игроков. Все твои гриферские мечты сбываются!</p>
+                </div>
+                <div class="feature-card glow fade-in">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Защита кланов</h3>
+                    <p>Создавай кланы, укрепляй базы и защищай свою территорию от врагов.</p>
+                </div>
+                <div class="feature-card glow fade-in">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Рейтинги и награды</h3>
+                    <p>Соревнуйся за топовые позиции в рейтинге и получай эксклюзивные награды.</p>
+                </div>
+                <div class="feature-card glow fade-in">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Кастомные плагины</h3>
+                    <p>Уникальные плагины, созданные специально для нашего сервера, обеспечивают лучший геймплей.</p>
+                </div>
+                <div class="feature-card glow fade-in">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Большое сообщество</h3>
+                    <p>Присоединяйся к тысячам игроков со всего мира и стань легендой RavageMC!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Привилегии -->
+    <section class="privileges" id="privileges">
+        <div class="container">
+            <div class="section-title">
+                <h2 class="fade-in">Привилегии</h2>
+            </div>
+            <div class="privileges-grid">
+                <div class="privilege-card glow scale-in">
+                    <h3 class="privilege-name">Prince</h3>
+                    <div class="privilege-price">299 руб.</div>
+                    <ul class="privilege-features">
+                        <li>Доступ к /kit prince</li>
+                        <li>Возможность установить 3 дома</li>
+                        <li>Цветной ник в чате</li>
+                        <li>Доступ к варпам привата</li>
+                        <li>Увеличенный лимит друзей</li>
+                    </ul>
+                    <button class="buy-button" data-privilege="Prince" data-price="299">Купить сейчас</button>
+                </div>
+                <div class="privilege-card glow scale-in">
+                    <h3 class="privilege-name">King</h3>
+                    <div class="privilege-price">599 руб.</div>
+                    <ul class="privilege-features">
+                        <li>Все возможности Prince</li>
+                        <li>Доступ к /kit king</li>
+                        <li>Возможность установить 7 домов</li>
+                        <li>Префикс в чате</li>
+                        <li>Доступ к полету в своих регионах</li>
+                        <li>Увеличенный лимит предметов в маркете</li>
+                    </ul>
+                    <button class="buy-button" data-privilege="King" data-price="599">Купить сейчас</button>
+                </div>
+                <div class="privilege-card glow scale-in">
+                    <h3 class="privilege-name">Global</h3>
+                    <div class="privilege-price">999 руб.</div>
+                    <ul class="privilege-features">
+                        <li>Все возможности King</li>
+                        <li>Доступ к /kit global</li>
+                        <li>Возможность установить 15 домов</li>
+                        <li>Эксклюзивный префикс</li>
+                        <li>Доступ к полету везде</li>
+                        <li>Возможность создавать свои варпы</li>
+                        <li>Приоритет в подключении к серверу</li>
+                    </ul>
+                    <button class="buy-button" data-privilege="Global" data-price="999">Купить сейчас</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Правила и как играть -->
+    <section id="rules">
+        <div class="container">
+            <div class="section-title">
+                <h2 class="fade-in">Правила и как играть</h2>
+            </div>
+            <div class="rules-and-guide">
+                <div class="rules-list glow slide-in-left">
+                    <h3>Правила сервера</h3>
+                    <div class="rule-item">
+                        <h4>1. Гриферство разрешено</h4>
+                        <p>Вы можете грабить и разрушать базы других игроков, но читы и эксплуатация багов запрещены.</p>
+                    </div>
+                    <div class="rule-item">
+                        <h4>2. Уважение к игрокам</h4>
+                        <p>Запрещены оскорбления, расизм и разжигание ненависти в чате.</p>
+                    </div>
+                    <div class="rule-item">
+                        <h4>3. Запрещены читы</h4>
+                        <p>Использование любых читов, модов, дающих преимущество, и эксплойтов приведет к перманентному бану.</p>
+                    </div>
+                    <div class="rule-item">
+                        <h4>4. Один аккаунт на игрока</h4>
+                        <p>Запрещено использование нескольких аккаунтов для получения преимущества.</p>
+                    </div>
+                    <div class="rule-item">
+                        <h4>5. Реклама запрещена</h4>
+                        <p>Запрещена реклама других серверов и проектов без разрешения администрации.</p>
+                    </div>
+                </div>
+                <div class="guide-steps glow slide-in-right">
+                    <h3>Как начать играть</h3>
+                    <div class="guide-step">
+                        <h4>1. Скачай Minecraft</h4>
+                        <p>Убедись, что у тебя установлена версия Minecraft 1.16.5 или выше</p>
+                    </div>
+                    <div class="guide-step">
+                        <h4>2. Подключись к серверу</h4>
+                        <p>Введи IP-адрес нашего сервера в мультиплеере: <strong>play.ravagemc.net</strong></p>
+                    </div>
+                    <div class="guide-step">
+                        <h4>3. Зарегистрируйся</h4>
+                        <p>При первом входе используй команду /register [пароль] [повтор пароля]</p>
+                    </div>
+                    <div class="guide-step">
+                        <h4>4. Начни играть</h4>
+                        <p>Исследуй мир, находи ресурсы, сражайся с другими игроками и стань легендой!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Как присоединиться -->
+    <section class="join" id="join">
+        <div class="container">
+            <div class="section-title">
+                <h2 class="fade-in">Как присоединиться</h2>
+            </div>
+            <div class="join-steps">
+                <div class="step fade-in">
+                    <div class="step-number">1</div>
+                    <h3>Скачай Minecraft</h3>
+                    <p>Убедись, что у тебя установлена версия Minecraft 1.16.5 или выше</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">2</div>
+                    <h3>Подключись к серверу</h3>
+                    <p>Введи IP-адрес нашего сервера в мультиплеере</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">3</div>
+                    <h3>Начни играть</h3>
+                    <p>Зарегистрируйся и начни свой путь к доминированию на сервере</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 50px;">
+                <h3 style="margin-bottom: 20px;" class="fade-in">IP-адрес сервера:</h3>
+                <div style="background-color: rgba(0, 102, 255, 0.2); padding: 15px; border-radius: 5px; display: inline-block; font-size: 1.5rem; font-weight: bold;" class="glow fade-in">
+                    play.ravagemc.net
+                </div>
+                <p style="margin-top: 20px;" class="fade-in">Версия: 1.16.5 - 1.19.x</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Модальное окно входа -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeLoginModal">&times;</span>
+            <h2>Вход в аккаунт</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginUsername">Имя пользователя</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="submit-btn">Войти</button>
+                <div class="form-footer">
+                    <p>Нет аккаунта? <a href="#" id="showRegisterFromLogin">Зарегистрироваться</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно регистрации -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeRegisterModal">&times;</span>
+            <h2>Регистрация</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerUsername">Имя пользователя</label>
+                    <input type="text" id="registerUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Пароль</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerConfirmPassword">Подтвердите пароль</label>
+                    <input type="password" id="registerConfirmPassword" required>
+                </div>
+                <button type="submit" class="submit-btn">Зарегистрироваться</button>
+                <div class="form-footer">
+                    <p>Уже есть аккаунт? <a href="#" id="showLoginFromRegister">Войти</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно покупки привилегии -->
+    <div class="modal" id="purchaseModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closePurchaseModal">&times;</span>
+            <h2 id="purchaseTitle">Покупка привилегии</h2>
+            <form id="purchaseForm">
+                <div class="form-group">
+                    <label for="purchaseMinecraftName">Никнейм в Minecraft</label>
+                    <input type="text" id="purchaseMinecraftName" required placeholder="Введите ваш никнейм в игре">
+                </div>
+                <div class="form-group">
+                    <label for="purchaseEmail">Email для чека</label>
+                    <input type="email" id="purchaseEmail" required placeholder="Введите email для получения чека">
+                </div>
+                <div class="form-group">
+                    <label for="purchaseMethod">Способ оплаты</label>
+                    <select id="purchaseMethod" required>
+                        <option value="">Выберите способ оплаты</option>
+                        <option value="card">Банковская карта</option>
+                        <option value="qiwi">QIWI</option>
+                        <option value="yoomoney">ЮMoney</option>
+                        <option value="cryptocurrency">Криптовалюта</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <p><strong>Привилегия:</strong> <span id="selectedPrivilege"></span></p>
+                    <p><strong>Стоимость:</strong> <span id="selectedPrice"></span> руб.</p>
+                </div>
+                <button type="submit" class="submit-btn">Перейти к оплате</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно профиля -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content profile-modal">
+            <span class="close-modal" id="closeProfileModal">&times;</span>
+            <h2>Профиль пользователя</h2>
+            
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">
+                    U
+                    <div class="change-avatar-btn" id="changeAvatarBtn">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h3 id="profileUsername">User123</h3>
+                    <p id="profileEmail">user@example.com</p>
+                    <p id="profileStatus">Привилегия: <span style="color: var(--accent-color);">Отсутствует</span></p>
+                </div>
+            </div>
+            
+            <div class="profile-stats">
+                <div class="stat-card">
+                    <div class="stat-value">15</div>
+                    <div class="stat-label">Часов игры</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">42</div>
+                    <div class="stat-label">Убийств</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">7</div>
+                    <div class="stat-label">Смертей</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Разрушено баз</div>
+                </div>
+            </div>
+            
+            <div class="profile-tabs">
+                <div class="profile-tab active" data-tab="info">Информация</div>
+                <div class="profile-tab" data-tab="transactions">Транзакции</div>
+            </div>
+            
+            <div class="tab-content active" id="infoTab">
+                <p>Здесь вы можете управлять настройками вашего профиля.</p>
+            </div>
+            
+            <div class="tab-content" id="transactionsTab">
+                <div class="transactions-list" id="transactionsList">
+                    <!-- Транзакции будут добавлены через JavaScript -->
+                </div>
+            </div>
+            
+            <div class="profile-actions">
+                <button class="action-btn logout-btn" id="logoutBtn">Выйти</button>
+                <button class="action-btn save-btn" id="saveProfileBtn">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно выбора аватарки -->
+    <div class="modal" id="avatarModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeAvatarModal">&times;</span>
+            <h2>Выберите аватарку</h2>
+            <div class="avatar-selection" id="avatarSelection">
+                <!-- Аватарки будут добавлены через JavaScript -->
+            </div>
+            <button class="submit-btn" id="confirmAvatarBtn" style="margin-top: 20px;">Подтвердить</button>
+        </div>
+    </div>
+
+    <script>
+        // Элементы DOM
+        const authButtons = document.getElementById('authButtons');
+        const userMenu = document.getElementById('userMenu');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const userAvatar = document.getElementById('userAvatar');
+        const username = document.getElementById('username');
+        const logoutBtnHeader = document.getElementById('logoutBtnHeader');
+        
+        const loginModal = document.getElementById('loginModal');
+        const registerModal = document.getElementById('registerModal');
+        const profileModal = document.getElementById('profileModal');
+        const avatarModal = document.getElementById('avatarModal');
+        const purchaseModal = document.getElementById('purchaseModal');
+        
+        const closeLoginModal = document.getElementById('closeLoginModal');
+        const closeRegisterModal = document.getElementById('closeRegisterModal');
+        const closeProfileModal = document.getElementById('closeProfileModal');
+        const closeAvatarModal = document.getElementById('closeAvatarModal');
+        const closePurchaseModal = document.getElementById('closePurchaseModal');
+        
+        const showRegisterFromLogin = document.getElementById('showRegisterFromLogin');
+        const showLoginFromRegister = document.getElementById('showLoginFromRegister');
+        
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const purchaseForm = document.getElementById('purchaseForm');
+        
+        const profileAvatar = document.getElementById('profileAvatar');
+        const profileUsername = document.getElementById('profileUsername');
+        const profileEmail = document.getElementById('profileEmail');
+        const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        
+        const avatarSelection = document.getElementById('avatarSelection');
+        const confirmAvatarBtn = document.getElementById('confirmAvatarBtn');
+        
+        const selectedPrivilege = document.getElementById('selectedPrivilege');
+        const selectedPrice = document.getElementById('selectedPrice');
+        const purchaseTitle = document.getElementById('purchaseTitle');
+        
+        const transactionsList = document.getElementById('transactionsList');
+        const profileTabs = document.querySelectorAll('.profile-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Текущий пользователь (для демонстрации)
+        let currentUser = null;
+        
+        // Список аватарок
+        const avatars = [
+            { char: 'A', color1: '#0066ff', color2: '#00a8ff' },
+            { char: 'B', color1: '#ff0066', color2: '#ff00aa' },
+            { char: 'C', color1: '#00cc66', color2: '#00ffaa' },
+            { char: 'D', color1: '#ffaa00', color2: '#ffcc00' },
+            { char: 'E', color1: '#aa00ff', color2: '#cc00ff' },
+            { char: 'F', color1: '#ff6600', color2: '#ff8800' },
+            { char: 'G', color1: '#00aaff', color2: '#00ccff' },
+            { char: 'H', color1: '#ff00ff', color2: '#ff66ff' },
+            { char: 'I', color1: '#00ffaa', color2: '#00ffcc' },
+            { char: 'J', color1: '#ffaa66', color2: '#ffcc88' },
+            { char: 'K', color1: '#6600ff', color2: '#8800ff' },
+            { char: 'L', color1: '#ff0066', color2: '#ff2288' }
+        ];
+        
+        // Транзакции пользователя
+        let userTransactions = [];
+        
+        // Инициализация
+        function init() {
+            // Создаем анимированный фон
+            createAnimatedBackground();
+            
+            // Проверяем, есть ли сохраненный пользователь
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateUI();
+            }
+            
+            // Загружаем транзакции
+            const savedTransactions = localStorage.getItem('userTransactions');
+            if (savedTransactions) {
+                userTransactions = JSON.parse(savedTransactions);
+            }
+            
+            // Заполняем выбор аватарок
+            renderAvatars();
+            
+            // Назначаем обработчики событий
+            setupEventListeners();
+            
+            // Запускаем анимации появления
+            initAnimations();
+        }
+        
+        // Инициализация анимаций появления
+        function initAnimations() {
+            // Наблюдатель за появлением элементов в viewport
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            // Наблюдаем за всеми элементами с классами анимаций
+            document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right, .scale-in').forEach(el => {
+                observer.observe(el);
+            });
+        }
+        
+        // Создание анимированного фона
+        function createAnimatedBackground() {
+            const bg = document.getElementById('animatedBg');
+            const colors = ['#0066ff', '#00a8ff', '#0044cc', '#0088ff'];
+            
+            for (let i = 0; i < 15; i++) {
+                const element = document.createElement('div');
+                element.className = 'bg-element';
+                
+                const size = Math.random() * 200 + 50;
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                element.style.background = `radial-gradient(circle, ${color}20 0%, transparent 70%)`;
+                
+                element.style.left = `${Math.random() * 100}%`;
+                element.style.top = `${Math.random() * 100}%`;
+                
+                element.style.animationDuration = `${Math.random() * 20 + 10}s`;
+                element.style.animationDelay = `${Math.random() * 5}s`;
+                
+                bg.appendChild(element);
+            }
+        }
+        
+        // Назначение обработчиков событий
+        function setupEventListeners() {
+            // Кнопки авторизации
+            loginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginModal.style.display = 'block';
+            });
+            
+            registerBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                registerModal.style.display = 'block';
+            });
+            
+            // Закрытие модальных окон
+            closeLoginModal.addEventListener('click', () => {
+                loginModal.style.display = 'none';
+            });
+            
+            closeRegisterModal.addEventListener('click', () => {
+                registerModal.style.display = 'none';
+            });
+            
+            closeProfileModal.addEventListener('click', () => {
+                profileModal.style.display = 'none';
+            });
+            
+            closeAvatarModal.addEventListener('click', () => {
+                avatarModal.style.display = 'none';
+            });
+            
+            closePurchaseModal.addEventListener('click', () => {
+                purchaseModal.style.display = 'none';
+            });
+            
+            // Переключение между формами
+            showRegisterFromLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginModal.style.display = 'none';
+                registerModal.style.display = 'block';
+            });
+            
+            showLoginFromRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                registerModal.style.display = 'none';
+                loginModal.style.display = 'block';
+            });
+            
+            // Формы
+            loginForm.addEventListener('submit', handleLogin);
+            registerForm.addEventListener('submit', handleRegister);
+            purchaseForm.addEventListener('submit', handlePurchase);
+            
+            // Профиль
+            userAvatar.addEventListener('click', showProfile);
+            logoutBtnHeader.addEventListener('click', handleLogout);
+            changeAvatarBtn.addEventListener('click', showAvatarSelection);
+            logoutBtn.addEventListener('click', handleLogout);
+            saveProfileBtn.addEventListener('click', saveProfile);
+            
+            // Вкладки профиля
+            profileTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Убираем активный класс у всех вкладок и контента
+                    profileTabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Добавляем активный класс к выбранной вкладке и контенту
+                    tab.classList.add('active');
+                    document.getElementById(`${tabId}Tab`).classList.add('active');
+                    
+                    // Если открыта вкладка транзакций, обновляем список
+                    if (tabId === 'transactions') {
+                        renderTransactions();
+                    }
+                });
+            });
+            
+            // Выбор аватарки
+            confirmAvatarBtn.addEventListener('click', confirmAvatar);
+            
+            // Кнопки покупки привилегий
+            document.querySelectorAll('.buy-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    if (!currentUser) {
+                        alert('Для покупки привилегии необходимо войти в аккаунт!');
+                        loginModal.style.display = 'block';
+                        return;
+                    }
+                    
+                    const privilege = e.target.getAttribute('data-privilege');
+                    const price = e.target.getAttribute('data-price');
+                    
+                    showPurchaseModal(privilege, price);
+                });
+            });
+            
+            // Закрытие модальных окон при клике вне их
+            window.addEventListener('click', (e) => {
+                if (e.target === loginModal) loginModal.style.display = 'none';
+                if (e.target === registerModal) registerModal.style.display = 'none';
+                if (e.target === profileModal) profileModal.style.display = 'none';
+                if (e.target === avatarModal) avatarModal.style.display = 'none';
+                if (e.target === purchaseModal) purchaseModal.style.display = 'none';
+            });
+            
+            // Плавная прокрутка для навигации
+            document.querySelectorAll('nav a').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        }
+        
+        // Обработка входа
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // В реальном приложении здесь был бы запрос к серверу
+            // Для демонстрации просто создаем пользователя
+            currentUser = {
+                username: username,
+                email: `${username}@example.com`,
+                avatar: { char: username.charAt(0).toUpperCase(), color1: '#0066ff', color2: '#00a8ff' }
+            };
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            // Обновляем UI
+            updateUI();
+            
+            // Закрываем модальное окно
+            loginModal.style.display = 'none';
+            
+            // Очищаем форму
+            loginForm.reset();
+            
+            alert(`Добро пожаловать, ${username}!`);
+        }
+        
+        // Обработка регистрации
+        function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Пароли не совпадают!');
+                return;
+            }
+            
+            // В реальном приложении здесь был бы запрос к серверу
+            // Для демонстрации просто создаем пользователя
+            currentUser = {
+                username: username,
+                email: email,
+                avatar: { char: username.charAt(0).toUpperCase(), color1: '#0066ff', color2: '#00a8ff' }
+            };
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            // Обновляем UI
+            updateUI();
+            
+            // Закрываем модальное окно
+            registerModal.style.display = 'none';
+            
+            // Очищаем форму
+            registerForm.reset();
+            
+            alert(`Регистрация прошла успешно! Добро пожаловать, ${username}!`);
+        }
+        
+        // Показать модальное окно покупки
+        function showPurchaseModal(privilege, price) {
+            selectedPrivilege.textContent = privilege;
+            selectedPrice.textContent = price;
+            purchaseTitle.textContent = `Покупка привилегии ${privilege}`;
+            purchaseModal.style.display = 'block';
+        }
+        
+        // Обработка покупки
+        function handlePurchase(e) {
+            e.preventDefault();
+            const minecraftName = document.getElementById('purchaseMinecraftName').value;
+            const email = document.getElementById('purchaseEmail').value;
+            const method = document.getElementById('purchaseMethod').value;
+            const privilege = selectedPrivilege.textContent;
+            const price = selectedPrice.textContent;
+            
+            if (!minecraftName || !email || !method) {
+                alert('Пожалуйста, заполните все поля!');
+                return;
+            }
+            
+            // Создаем транзакцию
+            const transaction = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('ru-RU'),
+                privilege: privilege,
+                amount: price,
+                minecraftName: minecraftName,
+                email: email,
+                method: method,
+                status: 'completed'
+            };
+            
+            // Добавляем транзакцию в список
+            userTransactions.push(transaction);
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('userTransactions', JSON.stringify(userTransactions));
+            
+            // Закрываем модальное окно
+            purchaseModal.style.display = 'none';
+            
+            // Очищаем форму
+            purchaseForm.reset();
+            
+            alert(`Привилегия ${privilege} успешно приобретена для аккаунта ${minecraftName}! Чек отправлен на ${email}`);
+        }
+        
+        // Выход из системы
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateUI();
+            profileModal.style.display = 'none';
+            alert('Вы вышли из системы.');
+        }
+        
+        // Показать профиль
+        function showProfile() {
+            if (currentUser) {
+                profileUsername.textContent = currentUser.username;
+                profileEmail.textContent = currentUser.email;
+                
+                // Устанавливаем аватарку
+                profileAvatar.textContent = currentUser.avatar.char;
+                profileAvatar.style.background = `linear-gradient(135deg, ${currentUser.avatar.color1}, ${currentUser.avatar.color2})`;
+                
+                profileModal.style.display = 'block';
+                
+                // Показываем вкладку информации по умолчанию
+                profileTabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                document.querySelector('.profile-tab[data-tab="info"]').classList.add('active');
+                document.getElementById('infoTab').classList.add('active');
+            }
+        }
+        
+        // Показать выбор аватарки
+        function showAvatarSelection() {
+            avatarModal.style.display = 'block';
+        }
+        
+        // Сохранить профиль
+        function saveProfile() {
+            // В реальном приложении здесь был бы запрос к серверу
+            alert('Изменения сохранены!');
+            profileModal.style.display = 'none';
+        }
+        
+        // Подтвердить выбор аватарки
+        function confirmAvatar() {
+            const selectedAvatar = document.querySelector('.avatar-option.selected');
+            if (selectedAvatar) {
+                const char = selectedAvatar.textContent;
+                const color1 = selectedAvatar.style.background.split(', ')[0].replace('linear-gradient(135deg, ', '');
+                const color2 = selectedAvatar.style.background.split(', ')[1].replace(')', '');
+                
+                currentUser.avatar = { char, color1, color2 };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                updateUI();
+                avatarModal.style.display = 'none';
+                
+                // Обновляем аватарку в профиле
+                profileAvatar.textContent = char;
+                profileAvatar.style.background = `linear-gradient(135deg, ${color1}, ${color2})`;
+            }
+        }
+        
+        // Обновление интерфейса
+        function updateUI() {
+            if (currentUser) {
+                authButtons.style.display = 'none';
+                userMenu.style.display = 'flex';
+                
+                username.textContent = currentUser.username;
+                userAvatar.textContent = currentUser.avatar.char;
+                userAvatar.style.background = `linear-gradient(135deg, ${currentUser.avatar.color1}, ${currentUser.avatar.color2})`;
+            } else {
+                authButtons.style.display = 'flex';
+                userMenu.style.display = 'none';
+            }
+        }
+        
+        // Рендер аватарок
+        function renderAvatars() {
+            avatarSelection.innerHTML = '';
+            
+            avatars.forEach(avatar => {
+                const avatarOption = document.createElement('div');
+                avatarOption.className = 'avatar-option';
+                avatarOption.textContent = avatar.char;
+                avatarOption.style.background = `linear-gradient(135deg, ${avatar.color1}, ${avatar.color2})`;
+                
+                avatarOption.addEventListener('click', () => {
+                    // Убираем выделение у всех аватарок
+                    document.querySelectorAll('.avatar-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                    
+                    // Выделяем выбранную аватарку
+                    avatarOption.classList.add('selected');
+                });
+                
+                avatarSelection.appendChild(avatarOption);
+            });
+        }
+        
+        // Рендер транзакций
+        function renderTransactions() {
+            transactionsList.innerHTML = '';
+            
+            if (userTransactions.length === 0) {
+                transactionsList.innerHTML = '<p style="text-align: center; padding: 20px;">У вас пока нет транзакций</p>';
+                return;
+            }
+            
+            userTransactions.forEach(transaction => {
+                const transactionItem = document.createElement('div');
+                transactionItem.className = 'transaction-item';
+                
+                transactionItem.innerHTML = `
+                    <div class="transaction-info">
+                        <h4>${transaction.privilege}</h4>
+                        <p>Дата: ${transaction.date}</p>
+                        <p>Аккаунт: ${transaction.minecraftName}</p>
+                        <p>Способ: ${getPaymentMethodName(transaction.method)}</p>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-amount">${transaction.amount} руб.</div>
+                        <div class="transaction-status status-${transaction.status}">${getStatusText(transaction.status)}</div>
+                    </div>
+                `;
+                
+                transactionsList.appendChild(transactionItem);
+            });
+        }
+        
+        // Получить название способа оплаты
+        function getPaymentMethodName(method) {
+            const methods = {
+                'card': 'Банковская карта',
+                'qiwi': 'QIWI',
+                'yoomoney': 'ЮMoney',
+                'cryptocurrency': 'Криптовалюта'
+            };
+            
+            return methods[method] || method;
+        }
+        
+        // Получить текст статуса
+        function getStatusText(status) {
+            const statuses = {
+                'completed': 'Завершена',
+                'pending': 'В обработке',
+                'failed': 'Ошибка'
+            };
+            
+            return statuses[status] || status;
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
